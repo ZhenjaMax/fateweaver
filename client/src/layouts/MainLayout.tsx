@@ -1,68 +1,66 @@
 import React from 'react';
-import { Box, AppBar, Toolbar, Typography, Button, Container, useTheme, IconButton } from '@mui/material';
+import {
+  ActionIcon,
+  AppShell,
+  Button,
+  Container,
+  Group,
+  Text,
+  useComputedColorScheme,
+  useMantineColorScheme,
+  useMantineTheme,
+} from '@mantine/core';
+import { IconBook, IconMoon, IconSun } from '@tabler/icons-react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import AutoStoriesIcon from '@mui/icons-material/AutoStories';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
 
 const MainLayout: React.FC = () => {
-  const theme = useTheme();
   const navigate = useNavigate();
+  const theme = useMantineTheme();
+  const { toggleColorScheme } = useMantineColorScheme();
+  const colorScheme = useComputedColorScheme('dark');
+
+  const borderColor = colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3];
+  const headerBackground = colorScheme === 'dark' ? theme.colors.dark[7] : theme.white;
+  const footerBackground = colorScheme === 'dark' ? theme.colors.dark[7] : theme.white;
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <AppBar position="static" color="transparent" elevation={0} sx={{ backdropFilter: 'blur(10px)', borderBottom: `1px solid ${theme.palette.divider}` }}>
-        <Container maxWidth="xl">
-          <Toolbar disableGutters>
-            <AutoStoriesIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1, color: 'primary.main' }} />
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
-              onClick={() => navigate('/')}
-              sx={{
-                mr: 2,
-                display: { xs: 'none', md: 'flex' },
-                fontFamily: 'monospace',
-                fontWeight: 700,
-                letterSpacing: '.3rem',
-                color: 'inherit',
-                textDecoration: 'none',
-                cursor: 'pointer',
-              }}
-            >
-              FATEWEAVER
-            </Typography>
-
-            <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-               <Button onClick={() => navigate('/login')} variant="outlined" color="primary">
+    <AppShell header={{ height: 72 }} footer={{ height: 64 }} padding={0}>
+      <AppShell.Header style={{ backgroundColor: headerBackground, borderBottom: `1px solid ${borderColor}` }}>
+        <Container size="xl" style={{ height: '100%' }}>
+          <Group h="100%" justify="space-between">
+            <Group gap="xs" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+              <IconBook size={22} color={theme.colors.indigo[4]} />
+              <Text fw={700} style={{ letterSpacing: '0.3rem' }}>
+                FATEWEAVER
+              </Text>
+            </Group>
+            <Group gap="sm">
+              <Button variant="outline" onClick={() => navigate('/login')}>
                 Login
               </Button>
-              <Button onClick={() => navigate('/register')} variant="contained" color="primary">
-                Get Started
-              </Button>
-              <IconButton sx={{ ml: 1 }} color="inherit">
-                {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-              </IconButton>
-            </Box>
-          </Toolbar>
+              <Button onClick={() => navigate('/register')}>Get Started</Button>
+              <ActionIcon variant="subtle" onClick={() => toggleColorScheme()} aria-label="Toggle color scheme">
+                {colorScheme === 'dark' ? <IconSun size={18} /> : <IconMoon size={18} />}
+              </ActionIcon>
+            </Group>
+          </Group>
         </Container>
-      </AppBar>
+      </AppShell.Header>
 
-      <Box component="main" sx={{ flexGrow: 1 }}>
+      <AppShell.Main style={{ minHeight: 'calc(100vh - 136px)' }}>
         <Outlet />
-      </Box>
+      </AppShell.Main>
 
-      <Box component="footer" sx={{ py: 3, px: 2, mt: 'auto', backgroundColor: theme.palette.background.paper, borderTop: `1px solid ${theme.palette.divider}` }}>
-        <Container maxWidth="sm">
-          <Typography variant="body2" color="text.secondary" align="center">
-            {'Copyright © '}
-            FateWeaver {new Date().getFullYear()}
-            {'.'}
-          </Typography>
+      <AppShell.Footer style={{ backgroundColor: footerBackground, borderTop: `1px solid ${borderColor}` }}>
+        <Container size="xl" style={{ height: '100%' }}>
+          <Group h="100%" justify="center">
+            <Text size="sm" c="dimmed">
+              Copyright © FateWeaver {new Date().getFullYear()}.
+            </Text>
+          </Group>
         </Container>
-      </Box>
-    </Box>
+      </AppShell.Footer>
+    </AppShell>
   );
 };
 

@@ -1,118 +1,94 @@
 import React from 'react';
-import { Box, Typography, Button, Container, Grid, Paper, Stack } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  Container,
+  Group,
+  SimpleGrid,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
+  useComputedColorScheme,
+} from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
-import AutoStoriesIcon from '@mui/icons-material/AutoStories';
-import MapIcon from '@mui/icons-material/Map';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import GroupsIcon from '@mui/icons-material/Groups';
+import { IconBook, IconClock, IconMap, IconUsers } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 
 const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description: string }> = ({ icon, title, description }) => (
-  <Paper
-    elevation={0}
-    sx={{
-      p: 4,
-      height: '100%',
-      backgroundColor: 'background.paper',
-      border: '1px solid',
-      borderColor: 'divider',
-      transition: 'all 0.3s ease-in-out',
-      '&:hover': {
-        transform: 'translateY(-8px)',
-        boxShadow: (theme) => `0 20px 40px -4px ${theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.1)'}`,
-        borderColor: 'primary.main',
-      },
-    }}
-  >
-    <Box sx={{ color: 'primary.main', mb: 2 }}>{icon}</Box>
-    <Typography variant="h5" component="h3" gutterBottom fontWeight="bold">
-      {title}
-    </Typography>
-    <Typography variant="body1" color="text.secondary">
-      {description}
-    </Typography>
-  </Paper>
+  <Card className="feature-card" withBorder radius="lg" padding="xl">
+    <ThemeIcon variant="light" size={46} radius="md">
+      {icon}
+    </ThemeIcon>
+    <Stack mt="md" gap={6}>
+      <Text fw={700} size="lg">
+        {title}
+      </Text>
+      <Text c="dimmed">{description}</Text>
+    </Stack>
+  </Card>
 );
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const colorScheme = useComputedColorScheme('dark');
+
+  const heroBackground =
+    colorScheme === 'dark'
+      ? 'radial-gradient(circle at 50% 0%, #312e81 0%, #0f172a 60%)'
+      : 'radial-gradient(circle at 50% 0%, #e0e7ff 0%, #f8fafc 60%)';
 
   return (
     <Box>
-      {/* Hero Section */}
-      <Box
-        sx={{
-          py: { xs: 8, md: 16 },
-          textAlign: 'center',
-          background: (theme) =>
-            theme.palette.mode === 'dark'
-              ? 'radial-gradient(circle at 50% 0%, #2e1065 0%, #0f172a 60%)'
-              : 'radial-gradient(circle at 50% 0%, #e0e7ff 0%, #f8fafc 60%)',
-        }}
-      >
-        <Container maxWidth="md">
+      <Box style={{ padding: '6rem 0', textAlign: 'center', background: heroBackground }}>
+        <Container size="md">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-            <Typography variant="h2" component="h1" fontWeight={800} gutterBottom sx={{ fontSize: { xs: '2.5rem', md: '4rem' } }}>
-              Weave Your <Box component="span" sx={{ color: 'primary.main' }}>Destiny</Box>
-            </Typography>
-            <Typography variant="h5" color="text.secondary" sx={{ mb: 6, maxWidth: '800px', mx: 'auto', lineHeight: 1.6 }}>
-              The ultimate world-building tool for Game Masters and Writers. 
-              Organize campaigns, map your worlds, and track timelines in one immersive platform.
-            </Typography>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
-              <Button
-                variant="contained"
-                size="large"
-                onClick={() => navigate('/register')}
-                sx={{ px: 4, py: 1.5, fontSize: '1.1rem' }}
-              >
+            <Title order={1} fw={800} style={{ fontSize: 'clamp(2.4rem, 6vw, 3.8rem)' }}>
+              Weave Your{' '}
+              <Text component="span" inherit c="indigo.4">
+                Destiny
+              </Text>
+            </Title>
+            <Text size="lg" c="dimmed" mt="md" style={{ maxWidth: 800, margin: '0 auto', lineHeight: 1.6 }}>
+              The ultimate world-building tool for Game Masters and Writers. Organize campaigns, map your worlds, and
+              track timelines in one immersive platform.
+            </Text>
+            <Group justify="center" mt="xl" gap="md">
+              <Button size="lg" onClick={() => navigate('/register')}>
                 Start Creating Free
               </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                onClick={() => navigate('/login')}
-                sx={{ px: 4, py: 1.5, fontSize: '1.1rem' }}
-              >
+              <Button size="lg" variant="outline" onClick={() => navigate('/login')}>
                 Log In
               </Button>
-            </Stack>
+            </Group>
           </motion.div>
         </Container>
       </Box>
 
-      {/* Features Section */}
-      <Container sx={{ py: 12 }}>
-        <Grid container spacing={4}>
-          <Grid size={{ xs: 12, md: 6, lg: 3 }}>
-             <FeatureCard 
-               icon={<AutoStoriesIcon fontSize="large" />} 
-               title="Wiki & Lore" 
-               description="Create rich Markdown articles for your characters, locations, and items." 
-             />
-          </Grid>
-          <Grid size={{ xs: 12, md: 6, lg: 3 }}>
-             <FeatureCard 
-               icon={<MapIcon fontSize="large" />} 
-               title="Interactive Maps" 
-               description="Upload world maps, add pins, and link them directly to your lore articles." 
-             />
-          </Grid>
-          <Grid size={{ xs: 12, md: 6, lg: 3 }}>
-             <FeatureCard 
-               icon={<AccessTimeIcon fontSize="large" />} 
-               title="Dynamic Timelines" 
-               description="Track events across eras. Filter history with an interactive time-slider." 
-             />
-          </Grid>
-          <Grid size={{ xs: 12, md: 6, lg: 3 }}>
-             <FeatureCard 
-               icon={<GroupsIcon fontSize="large" />} 
-               title="Relationship Graphs" 
-               description="Visualize complex connections between NPCs and factions with node-based graphs." 
-             />
-          </Grid>
-        </Grid>
+      <Container size="lg" style={{ padding: '4rem 0' }}>
+        <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg">
+          <FeatureCard
+            icon={<IconBook size={28} />}
+            title="Wiki & Lore"
+            description="Create rich Markdown articles for your characters, locations, and items."
+          />
+          <FeatureCard
+            icon={<IconMap size={28} />}
+            title="Interactive Maps"
+            description="Upload world maps, add pins, and link them directly to your lore articles."
+          />
+          <FeatureCard
+            icon={<IconClock size={28} />}
+            title="Dynamic Timelines"
+            description="Track events across eras. Filter history with an interactive time-slider."
+          />
+          <FeatureCard
+            icon={<IconUsers size={28} />}
+            title="Relationship Graphs"
+            description="Visualize complex connections between NPCs and factions with node-based graphs."
+          />
+        </SimpleGrid>
       </Container>
     </Box>
   );

@@ -1,21 +1,21 @@
-version: "3.8"
+
 
 services:
-  # PostgreSQL with PostGIS for geospatial data
+  # PostgreSQL (Standard, no PostGIS needed)
   db:
-    image: postgis/postgis:15-3.3-alpine
+    image: postgres:15-alpine
     container_name: fateweaver_db
     restart: always
     environment:
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
-      POSTGRES_DB: ${DB_NAME:-fateweaver}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-fateweaver}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  # Redis for caching and session management
+  # Redis
   redis:
     image: redis:alpine
     container_name: fateweaver_redis
@@ -25,20 +25,22 @@ services:
     volumes:
       - redis_data:/data
 
-  # PgAdmin for database management (Optional, helpful for debugging)
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: fateweaver_pgadmin
+  # MinIO (S3 compatible object storage)
+  minio:
+    image: minio/minio
+    container_name: fateweaver_minio
     restart: always
+    command: server --console-address ":9001" /data
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@fateweaver.com}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
     ports:
-      - "5050:80"
-    depends_on:
-      - db
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
 
-  # NestJS API Server
+  # API Server
   server:
     build:
       context: ./server
@@ -46,15 +48,20 @@ services:
     container_name: fateweaver_server
     restart: always
     environment:
-      DATABASE_URL: postgres://${DB_USER:-postgres}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-fateweaver}
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-fateweaver}
+      REDIS_URL: redis://redis:6379
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
       JWT_SECRET: ${JWT_SECRET:-supersecret}
+      PORT: 3000
     ports:
       - "3000:3000"
     depends_on:
       - db
       - redis
+      - minio
     volumes:
       - ./server:/app
       - /app/node_modules
@@ -62,3 +69,4 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  minio_data:
