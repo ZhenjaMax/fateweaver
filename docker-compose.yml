@@ -1,0 +1,64 @@
+version: "3.8"
+
+services:
+  # PostgreSQL with PostGIS for geospatial data
+  db:
+    image: postgis/postgis:15-3.3-alpine
+    container_name: fateweaver_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_NAME:-fateweaver}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Redis for caching and session management
+  redis:
+    image: redis:alpine
+    container_name: fateweaver_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # PgAdmin for database management (Optional, helpful for debugging)
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: fateweaver_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@fateweaver.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+
+  # NestJS API Server
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: fateweaver_server
+    restart: always
+    environment:
+      DATABASE_URL: postgres://${DB_USER:-postgres}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-fateweaver}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET:-supersecret}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+  redis_data:
