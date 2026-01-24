@@ -46,7 +46,7 @@ services:
       context: ./server
       dockerfile: Dockerfile
     container_name: fateweaver_server
-    restart: always
+    # restart: always
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-fateweaver}
       REDIS_URL: redis://redis:6379
@@ -65,6 +65,22 @@ services:
     volumes:
       - ./server:/app
       - /app/node_modules
+
+  # Frontend Client
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: fateweaver_client
+    # restart: always
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:3000
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+
 
 volumes:
   postgres_data:
