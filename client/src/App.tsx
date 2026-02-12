@@ -4,6 +4,7 @@ import MainLayout from './layouts/MainLayout';
 import LandingPage from './pages/LandingPage';
 import AuthPage from './pages/AuthPage';
 import AuthCallback from './pages/AuthCallback';
+import DashboardPage from './pages/dashboard/DashboardPage';
 
 const App: React.FC = () => {
   return (
@@ -16,9 +17,10 @@ const App: React.FC = () => {
           <Route path="login" element={<AuthPage initialMode="login" />} />
           <Route path="register" element={<AuthPage initialMode="register" />} />
           <Route path="auth/callback" element={<AuthCallback />} />
-          {/* Temporary Dashboard Route */}
-          <Route path="dashboard" element={<LandingPage />} />
         </Route>
+
+        <Route path="dashboard" element={<DashboardPage />} />
+        
         {/* Redirect unknown routes */ }
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
