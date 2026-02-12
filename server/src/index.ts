@@ -1,11 +1,11 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
-import dotenv from 'dotenv';
+import passport from 'passport';
 import authRoutes from './auth/auth.routes';
-
-dotenv.config();
+import './auth/passport'; // Initialize passport strategy
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -15,9 +15,10 @@ app.use(cors()); // Enable CORS
 app.use(helmet()); // Secure HTTP headers
 app.use(morgan('dev')); // Logger
 app.use(express.json()); // Parse JSON bodies
+app.use(passport.initialize()); // Initialize Passport
 
 // Routes
-app.use('/auth', authRoutes);
+app.use('/api/auth', authRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Fateweaver API' });

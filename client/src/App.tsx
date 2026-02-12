@@ -3,18 +3,24 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import LandingPage from './pages/LandingPage';
 import AuthPage from './pages/AuthPage';
+import AuthCallback from './pages/AuthCallback';
 
 const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<MainLayout />}>
-          <Route index element={<LandingPage />} />
+        {/* Public Routes */}
+        <Route path="/" element={<LandingPage />} />
+        
+        <Route element={<MainLayout />}>
           <Route path="login" element={<AuthPage initialMode="login" />} />
           <Route path="register" element={<AuthPage initialMode="register" />} />
-          {/* Redirect unknown routes */ }
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="auth/callback" element={<AuthCallback />} />
+          {/* Temporary Dashboard Route */}
+          <Route path="dashboard" element={<LandingPage />} />
         </Route>
+        {/* Redirect unknown routes */ }
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

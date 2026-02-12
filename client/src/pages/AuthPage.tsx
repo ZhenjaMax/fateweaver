@@ -29,12 +29,41 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => {
   const navigate = useNavigate();
   const colorScheme = useComputedColorScheme('dark');
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const values = { email, password };
-    console.log('Values:', values);
-    alert(JSON.stringify(values, null, 2));
-    navigate('/dashboard');
+    
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const endpoint = mode === 'login' ? '/api/auth/login' : '/api/auth/register';
+      
+      const response = await fetch(`${apiUrl}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Something went wrong');
+      }
+
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        navigate('/dashboard');
+      } else {
+        // Fallback if no token but success
+        if (mode === 'register') {
+           setMode('login');
+           alert('Registration successful! Please login.');
+        }
+      }
+    } catch (error: any) {
+      alert(error.message);
+    }
   };
 
   const panelBackground = colorScheme === 'dark' ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.9)';
@@ -84,7 +113,10 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => {
                 <Button
                   variant="outline"
                   leftSection={<IconBrandGoogle size={18} />}
-                  onClick={() => alert('Google Auth to be implemented')}
+                  onClick={() => {
+                    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+                    window.location.href = `${apiUrl}/api/auth/google`;
+                  }}
                 >
                   Continue with Google
                 </Button>
